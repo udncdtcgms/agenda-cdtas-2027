@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agenda de ações 2027 · Campo Grande</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F6F7; --card:#FFFFFF; --soft:#F1F4F5; --head:#F7F9FA; --line:#E2E7EA; --line2:#CDD5D9;
+  --ink:#15212A; --ink2:#36464F; --muted:#69777F;
+  --brand:#00796B; --brand-ink:#FFFFFF;
+  --t-vendas:#00796B; --t-ret:#B06000; --t-clin:#1C6E8C; --t-parc:#5B4BB0; --t-gest:#56656D;
+  --ok:#1E7A4F; --doing:#1F63A6; --sched:#00796B; --late:#B3341C; --warn:#A35C00; --idle:#6F7E86;
+  --hl:#FFF6D6; --focus:#1C6E8C;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0F1519; --card:#161E23; --soft:#1B252B; --head:#1A2329; --line:#27333A; --line2:#36444C;
+    --ink:#E6ECEE; --ink2:#C3CDD1; --muted:#8E9DA4;
+    --brand:#3BC1AE; --brand-ink:#06201C;
+    --t-vendas:#3BC1AE; --t-ret:#E9A14E; --t-clin:#5BB8D9; --t-parc:#A497EE; --t-gest:#A6B5BC;
+    --ok:#5ACB8C; --doing:#6EADEB; --sched:#3BC1AE; --late:#EE7D63; --warn:#E9A14E; --idle:#93A2A9;
+    --hl:#3A3417; --focus:#5BB8D9;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:Inter,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:14.5px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.wrap{max-width:1360px;margin:0 auto;padding:28px 24px 64px}
+.num{font-variant-numeric:tabular-nums}
+
+/* Cabeçalho */
+header.top{display:flex;flex-wrap:wrap;gap:16px 24px;align-items:flex-end;justify-content:space-between;margin-bottom:20px}
+.eyebrow{font-size:11.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:clamp(24px,3vw,30px);line-height:1.15;margin:4px 0 4px;font-weight:700;letter-spacing:-.02em}
+.sub{color:var(--muted);margin:0}
+.tools{display:flex;flex-wrap:wrap;gap:8px}
+.btn{border:1px solid var(--line2);background:var(--card);border-radius:7px;padding:7px 13px;font-weight:600;font-size:13.5px;cursor:pointer;line-height:1.3}
+.btn:hover{border-color:var(--ink2)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.danger{color:var(--late);border-color:color-mix(in srgb,var(--late) 45%,transparent)}
+.btn.link{border:none;background:none;padding:2px 4px;color:var(--muted);text-decoration:underline;text-underline-offset:3px;font-weight:500}
+.btn.icon{width:32px;height:32px;padding:0;display:inline-grid;place-items:center;font-size:16px}
+.btn.sm{padding:4px 10px;font-size:12.5px}
+.btn:disabled{opacity:.4;cursor:default}
+
+/* Indicadores */
+.stats{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));background:var(--card);border:1px solid var(--line);border-radius:10px;margin-bottom:20px;overflow:hidden}
+.stat{background:none;border:none;border-left:1px solid var(--line);text-align:left;padding:11px 16px;cursor:pointer;display:flex;flex-direction:column;gap:1px;position:relative}
+.stat:first-child{border-left:none}
+.stat:hover{background:var(--soft)}
+.stat b{font-size:21px;font-weight:700;letter-spacing:-.02em;line-height:1.15}
+.stat span{font-size:12px;color:var(--muted);font-weight:500}
+.stat[aria-pressed="true"]{background:var(--soft)}
+.stat[aria-pressed="true"]::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--brand)}
+.s-late b{color:var(--late)} .s-warn b{color:var(--warn)} .s-doing b{color:var(--doing)} .s-ok b{color:var(--ok)}
+
+/* Painéis */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px}
+.phead{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--line)}
+.phead h2{font-size:15px;margin:0 auto 0 0;font-weight:700}
+.phead p{margin:0;font-size:12.5px;color:var(--muted)}
+
+/* Visão geral: calendário + prazos */
+.overview{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;align-items:stretch;margin-bottom:28px}
+.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.dow{font-size:10.5px;font-weight:700;color:var(--muted);padding:7px 8px 5px;border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.07em;background:var(--head)}
+.day{min-height:92px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:5px;display:flex;flex-direction:column;gap:3px;cursor:pointer;min-width:0}
+.day:nth-child(7n){border-right:none}
+.day.out{background:var(--soft);cursor:default}
+.day.out .n{opacity:.35}
+.day.wk{background:color-mix(in srgb,var(--soft) 55%,transparent)}
+.day .n{font-size:12px;font-weight:600;width:22px;height:22px;display:grid;place-items:center;border-radius:50%;color:var(--ink2)}
+.day.today .n{background:var(--brand);color:var(--brand-ink)}
+.day .hol{font-size:10px;color:var(--late);font-weight:600;line-height:1.2}
+.day:hover:not(.out){background:color-mix(in srgb,var(--brand) 5%,transparent)}
+.ev{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:left;border:none;border-left:3px solid var(--c);background:color-mix(in srgb,var(--c) 12%,transparent);border-radius:3px;padding:2px 5px;font-size:11px;font-weight:600;line-height:1.35;cursor:pointer}
+.ev .cd{font-weight:700;color:var(--c);margin-right:4px}
+.ev.dl{background:transparent;border:1px dashed var(--c);border-left:3px solid var(--c)}
+.ev.meet{background:var(--ink2);color:var(--card);border-left-color:var(--ink2)}
+.ev.done{opacity:.5;text-decoration:line-through}
+.ev.late{box-shadow:inset 0 0 0 1px var(--late)}
+.more{font-size:10.5px;color:var(--muted);font-weight:600;padding-left:3px}
+.calfoot{padding:9px 14px;font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 18px}
+.calfoot i{display:inline-block;width:16px;height:9px;vertical-align:-1px;margin-right:6px;border-radius:2px}
+.k-ag{background:color-mix(in srgb,var(--brand) 14%,transparent);border-left:3px solid var(--brand)}
+.k-pz{border:1px dashed var(--brand);border-left:3px solid var(--brand)}
+.k-re{background:var(--ink2)}
+.filtnote{font-size:12px;color:var(--warn);font-weight:600}
+
+.deadlines{display:flex;flex-direction:column;min-height:0}
+.dl-wrap{position:relative;flex:1;min-height:320px}
+.dl-body{position:absolute;inset:0;overflow:auto}
+.dl-sec{padding:4px 14px 8px}
+.dl-sec h3{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:10px 0 2px;font-weight:700;display:flex;justify-content:space-between}
+.dl-sec h3.red{color:var(--late)}
+.dli{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:8px;align-items:baseline;width:100%;text-align:left;background:none;border:none;border-top:1px solid var(--line);padding:8px 0;cursor:pointer}
+.dl-sec h3 + .dli{border-top:none}
+.dli:hover .tt{text-decoration:underline;text-underline-offset:3px}
+.dli .cd{font-size:11.5px;font-weight:700;color:var(--c)}
+.dli .tt{font-weight:600;font-size:13px;line-height:1.3;display:block}
+.dli .mt{font-size:12px;color:var(--muted);display:block;margin-top:1px}
+.dli .when{font-size:12px;font-weight:600;text-align:right;white-space:nowrap}
+.dli .when small{display:block;font-weight:500;color:var(--muted);font-size:11.5px}
+.r-late{color:var(--late)} .r-soon{color:var(--warn)} .r-ok{color:var(--ok)} .r-mut{color:var(--muted)}
+.dl-empty{font-size:12.5px;color:var(--muted);padding:6px 0 4px;margin:0}
+
+/* Plano 5W2H */
+.sechead{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;justify-content:space-between;margin:0 0 12px}
+.sechead h2{font-size:19px;margin:0;font-weight:700;letter-spacing:-.01em}
+.sechead p{margin:0;color:var(--muted);font-size:13px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.filters input[type=search],.filters select{border:1px solid var(--line2);background:var(--card);border-radius:7px;padding:7px 11px;font-size:13.5px}
+.filters input[type=search]{flex:1 1 260px;min-width:200px}
+.activef{font-size:12.5px;color:var(--muted);margin-left:auto}
+
+.tbl-wrap{background:var(--card);border:1px solid var(--line);border-radius:10px}
+table.w5{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;table-layout:fixed}
+.w5 th{position:sticky;top:0;z-index:2;background:var(--head);text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2);padding:10px 10px 8px;border-bottom:1px solid var(--line2);vertical-align:bottom}
+.w5 th:first-child{border-top-left-radius:10px} .w5 th:last-child{border-top-right-radius:10px}
+.w5 th span{display:block;font-weight:500;text-transform:none;letter-spacing:0;color:var(--muted);font-size:11px}
+.w5 td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.4;color:var(--ink2);overflow-wrap:anywhere}
+.w5 tbody tr:last-child td{border-bottom:none}
+.w5 tbody tr.row:hover td{background:color-mix(in srgb,var(--soft) 70%,transparent)}
+.w5 tr.flash td{background:var(--hl)!important;transition:background 1.2s}
+.w5 td.cod{font-weight:700;font-size:12px;color:var(--c);border-left:3px solid var(--c);white-space:nowrap}
+.w5 td.what{color:var(--ink);font-weight:600}
+.w5 td.what small{display:block;font-weight:500;color:var(--muted);font-size:11.5px;margin-top:2px}
+.w5 .na{color:var(--muted);font-style:italic;font-weight:400}
+.w5 .sub2{display:block;color:var(--muted);font-size:12px}
+.w5 td.when b{display:block;font-weight:600;color:var(--ink)}
+.w5 td.when .rel{display:block;font-size:12px;font-weight:600;margin-top:1px}
+.w5 td.when .exec{display:block;font-size:12px;color:var(--muted)}
+.tema.mobonly{display:none}
+.editb{margin-top:8px;display:block}
+.w5 tr.row:hover .editb{border-color:var(--ink2)}
+.w5 tr.grp td{background:var(--head);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink);padding:8px 10px;border-left:3px solid var(--c)}
+.w5 tr.grp td span{font-weight:500;text-transform:none;letter-spacing:0;color:var(--muted);margin-left:8px}
+.w5 tfoot td{background:var(--head);font-size:12.5px;padding:10px;border-top:1px solid var(--line2);color:var(--ink2)}
+.w5 tfoot td:first-child{border-bottom-left-radius:10px} .w5 tfoot td:last-child{border-bottom-right-radius:10px}
+.badges{display:flex;flex-wrap:wrap;gap:4px}
+.badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap;background:color-mix(in srgb,currentColor 11%,transparent)}
+.b-agendar{color:var(--idle)} .b-agendado{color:var(--sched)} .b-and{color:var(--doing)} .b-ok{color:var(--ok)} .b-sem{color:var(--late)}
+.b-late{background:var(--late);color:#fff}
+.tema{display:inline-block;font-size:11px;font-weight:600;color:var(--c);margin-top:3px}
+.empty{color:var(--muted);font-size:13.5px;padding:22px;text-align:center}
+
+/* Resultados */
+section.res{margin-top:32px}
+.months{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.mcard{background:var(--card);border:none;padding:11px 13px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:6px}
+.mcard:hover{background:var(--soft)}
+.mcard .top b{font-size:13.5px;display:block}
+.mcard .top span{font-size:11.5px;color:var(--muted)}
+.mcard .vals{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.mcard .vals strong{display:block;font-size:14.5px;color:var(--ink);font-variant-numeric:tabular-nums;text-transform:none;letter-spacing:0}
+.mcard .vals strong.pend{color:var(--muted);font-weight:500;font-size:12.5px}
+.mcard .vals em{display:block;font-style:normal;text-transform:none;letter-spacing:0;font-weight:500;font-size:11px}
+.mcard .res-line{font-size:12px;font-weight:600}
+.pos{color:var(--ok)} .neg{color:var(--late)} .wait{color:var(--muted);font-weight:500}
+
+/* Diálogos */
+dialog{border:none;border-radius:12px;padding:0;width:min(760px,95vw);max-height:92vh;background:var(--card);color:var(--ink);box-shadow:0 24px 70px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(10,18,22,.55)}
+.dlg{padding:20px 22px;display:grid;gap:12px}
+.dlg h3{margin:0;font-size:19px;line-height:1.2}
+.dlg .lead{margin:-4px 0 0;color:var(--muted);font-size:13.5px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{display:grid;gap:4px;font-size:13px;font-weight:600;color:var(--ink2)}
+label small{font-weight:400;color:var(--muted)}
+.dlg input,.dlg select,.dlg textarea{border:1px solid var(--line2);border-radius:7px;padding:7px 10px;background:var(--bg);width:100%;font-weight:400;color:var(--ink)}
+.dlg textarea{min-height:58px;resize:vertical}
+.form5{border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.form5 .r{display:grid;grid-template-columns:130px minmax(0,1fr);border-top:1px solid var(--line)}
+.form5 .r:first-child{border-top:none}
+.form5 .r > .k{background:var(--head);padding:10px 12px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.form5 .r > .k span{display:block;font-weight:500;text-transform:none;letter-spacing:0;color:var(--muted);font-size:11.5px}
+.form5 .r > .v{padding:8px 10px;display:grid;gap:8px}
+.statusbar{display:flex;flex-wrap:wrap;gap:6px}
+.statusbar button{border:1px solid var(--line2);background:var(--bg);border-radius:999px;padding:4px 11px;font-size:12.5px;font-weight:600;cursor:pointer}
+.statusbar button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.updates{border:1px solid var(--line);border-radius:9px;padding:11px 13px;display:grid;gap:9px;background:var(--soft)}
+.updates h4{margin:0;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em}
+.upd{font-size:13.5px;line-height:1.4;padding-bottom:7px;border-bottom:1px solid var(--line)}
+.upd:last-child{border-bottom:none;padding-bottom:0}
+.upd b{font-weight:600}
+.upd span{color:var(--muted);font-size:12px;margin-left:6px}
+.addupd{display:grid;grid-template-columns:150px 1fr auto;gap:8px}
+.dlg .actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.dlg .actions .danger{margin-right:auto}
+.warn{font-size:12.5px;color:var(--late);margin:0}
+.diffbox{font-size:13.5px;font-weight:600;margin:0}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:7px;font-weight:500;font-size:13.5px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:10}
+.toast.show{opacity:1}
+footer{margin-top:32px;color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padding-top:14px;display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between;align-items:center}
+footer p{margin:0;max-width:720px}
+
+@media (max-width:1180px){
+  .overview{grid-template-columns:1fr}
+  .dl-wrap{min-height:0}
+  .dl-body{position:static;max-height:460px}
+  .months{grid-template-columns:repeat(4,minmax(0,1fr))}
+  /* Tabela vira fichas */
+  table.w5,.w5 tbody,.w5 tr,.w5 td,.w5 tfoot{display:block}
+  .w5 thead{display:none}
+  .tbl-wrap{background:none;border:none}
+  .w5 tr.row{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--c);border-radius:9px;margin-bottom:10px;display:grid;grid-template-columns:1fr 1fr;overflow:hidden}
+  .w5 tr.row td{border-bottom:1px solid var(--line);padding:9px 12px}
+  .w5 tr.row td::before{content:attr(data-l);display:block;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:2px}
+  .w5 td.cod{border-left:none;grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;background:var(--head)}
+  .w5 td.cod::before{display:none!important}
+  .w5 td.what,.w5 td.why,.w5 td.how{grid-column:1/-1}
+  .tema.mobonly{display:inline}
+  .w5 td.what small{display:none}
+  .w5 tr.grp{margin:16px 0 8px}
+  .w5 tr.grp td{border-radius:6px}
+  .w5 tfoot tr{display:block}
+  .w5 tfoot td{border-radius:9px;border:1px solid var(--line)}
+  .w5 tfoot td.ftc{display:none}
+}
+@media (max-width:720px){
+  .wrap{padding:20px 12px 56px}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stat{border-left:none;border-top:1px solid var(--line)}
+  .stat:nth-child(even){border-left:1px solid var(--line)}
+  .stat:nth-child(-n+2){border-top:none}
+  .stat:last-child{grid-column:1/-1;border-left:none}
+  .months{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .w5 tr.row{grid-template-columns:1fr}
+  .day{min-height:52px;padding:3px}
+  .ev{font-size:0;height:6px;padding:0;border:none;border-radius:3px;background:var(--c)}
+  .ev .cd{display:none}
+  .ev.dl{background:transparent;border:1px dashed var(--c)}
+  .ev.meet{background:var(--ink2)}
+  .day .hol{display:none}
+  .two,.addupd{grid-template-columns:1fr}
+  .form5 .r{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}html{scroll-behavior:auto}}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">Cartão de TODOS · AmorSaúde · Campo Grande/MS</div>
+      <h1>Agenda de ações 2027</h1>
+      <p class="sub">Meta: 25 mil QIAs até julho de 2027 · Cartão de TODOS e Clínica AmorSaúde. Plano de ação 5W2H com calendário de prazos e reuniões mensais de resultado.</p>
+    </div>
+    <div class="tools">
+      <button class="btn primary" id="add">Nova ação</button>
+      <button class="btn" id="copy">Resumo para WhatsApp</button>
+      <button class="btn" id="csv">Exportar planilha</button>
+    </div>
+  </header>
+
+  <div class="stats" id="stats" role="group" aria-label="Indicadores. Clique para filtrar."></div>
+
+  <!-- Calendário e prazos -->
+  <div class="overview">
+    <div class="panel">
+      <div class="phead">
+        <h2 id="mtitle"></h2>
+        <span class="filtnote" id="calnote"></span>
+        <button class="btn sm" id="today">Hoje</button>
+        <button class="btn icon" id="prev" aria-label="Mês anterior">‹</button>
+        <button class="btn icon" id="next" aria-label="Próximo mês">›</button>
+      </div>
+      <div class="grid" id="grid"></div>
+      <div class="calfoot">
+        <span><i class="k-ag"></i>Início ou execução</span>
+        <span><i class="k-pz"></i>Prazo final</span>
+        <span><i class="k-re"></i>Reunião de resultado</span>
+        <span>Clique numa ação para localizá-la no plano. Clique num dia vazio para agendar.</span>
+      </div>
+    </div>
+    <aside class="panel deadlines" aria-labelledby="h-dl">
+      <div class="phead"><h2 id="h-dl">Prazos</h2><p id="dlsum"></p></div>
+      <div class="dl-wrap"><div class="dl-body" id="dlbody"></div></div>
+    </aside>
+  </div>
+
+  <!-- Plano 5W2H -->
+  <section aria-labelledby="h-plan" id="plano">
+    <div class="sechead"><h2 id="h-plan">Plano de ação 5W2H</h2><p>Cada linha é uma ação, com código para localizar no calendário e nos prazos.</p></div>
+    <div class="filters">
+      <input type="search" id="q" placeholder="Buscar por código, ação, responsável ou local" aria-label="Buscar">
+      <select id="ftema" aria-label="Filtrar por tema"></select>
+      <select id="fsit" aria-label="Filtrar por situação"></select>
+      <select id="sort" aria-label="Ordenar">
+        <option value="prazo">Ordenar por prazo</option>
+        <option value="tema">Agrupar por tema</option>
+        <option value="cod">Ordenar por código</option>
+      </select>
+      <span class="activef" id="activef"></span>
+    </div>
+    <div class="tbl-wrap">
+      <table class="w5" id="tbl">
+        <colgroup>
+          <col style="width:52px"><col style="width:16%"><col style="width:14%"><col style="width:10%"><col style="width:124px"><col style="width:10%"><col><col style="width:9%"><col style="width:112px">
+        </colgroup>
+        <thead><tr>
+          <th>Cód.</th>
+          <th>O quê<span>What</span></th>
+          <th>Por quê<span>Why</span></th>
+          <th>Onde<span>Where</span></th>
+          <th>Quando<span>When</span></th>
+          <th>Quem<span>Who</span></th>
+          <th>Como<span>How</span></th>
+          <th>Quanto<span>How much</span></th>
+          <th>Situação</th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+        <tfoot id="tfoot"></tfoot>
+      </table>
+    </div>
+  </section>
+
+  <!-- Resultados -->
+  <section class="res" aria-labelledby="h-res">
+    <div class="sechead"><h2 id="h-res">Reuniões de resultado</h2><p>Todo dia 10 do mês seguinte (ou o próximo dia útil). Clique no mês para registrar QCA, QIA e a análise FCA.</p></div>
+    <div class="months" id="months"></div>
+  </section>
+
+  <footer>
+    <p>Os dados ficam salvos neste navegador. Cada líder salva o backup e envia para a gestão, que junta os arquivos aqui: as atualizações de todos são somadas.</p>
+    <span><button class="btn link" id="backup">Salvar backup</button> <button class="btn link" id="restore">Juntar backup</button></span>
+    <input type="file" id="file" accept="application/json" hidden>
+  </footer>
+</div>
+
+<!-- Diálogo da ação -->
+<dialog id="dlgA" aria-labelledby="a-t">
+  <div class="dlg">
+    <h3 id="a-t">Ação</h3>
+    <div class="two">
+      <label>Tema<select id="a-tema"></select></label>
+      <label>Situação<div class="statusbar" id="a-status" role="group" aria-label="Situação"></div></label>
+    </div>
+    <div class="form5">
+      <div class="r"><div class="k">O quê<span>What</span></div><div class="v"><input id="a-titulo" aria-label="O que será feito" placeholder="O que será feito"></div></div>
+      <div class="r"><div class="k">Por quê<span>Why</span></div><div class="v"><textarea id="a-obj" rows="2" aria-label="Por quê" placeholder="Como esta ação ajuda o plano"></textarea></div></div>
+      <div class="r"><div class="k">Onde<span>Where</span></div><div class="v"><input id="a-onde" aria-label="Onde" placeholder="Local, setor ou canal"></div></div>
+      <div class="r"><div class="k">Quando<span>When</span></div><div class="v">
+        <div class="two">
+          <label>Início ou execução<input id="a-data" type="date"></label>
+          <label>Prazo final<input id="a-prazo" type="date"></label>
+        </div>
+        <p class="warn" id="a-warn" hidden>Para a situação “Agendado”, preencha a data de início ou execução.</p>
+      </div></div>
+      <div class="r"><div class="k">Quem<span>Who</span></div><div class="v">
+        <div class="two">
+          <input id="a-resp" placeholder="Responsável" aria-label="Responsável">
+          <input id="a-contato" placeholder="Contato (telefone ou e-mail)" aria-label="Contato">
+        </div>
+      </div></div>
+      <div class="r"><div class="k">Como<span>How</span></div><div class="v"><textarea id="a-como" rows="3" aria-label="Como" placeholder="Etapas e método"></textarea></div></div>
+      <div class="r"><div class="k">Quanto<span>How much</span></div><div class="v">
+        <div class="two">
+          <input id="a-custo" inputmode="decimal" placeholder="Valor em R$ (ex.: 1.500,00)" aria-label="Valor previsto em reais">
+          <input id="a-quanto" placeholder="Observação (Sem custo, A definir...)" aria-label="Observação do custo">
+        </div>
+      </div></div>
+    </div>
+    <div class="updates">
+      <h4>Atualizações dos líderes</h4>
+      <div id="a-upds"></div>
+      <div class="addupd">
+        <input id="u-nome" placeholder="Seu nome" aria-label="Seu nome">
+        <input id="u-texto" placeholder="O que aconteceu ou o que falta" aria-label="Atualização">
+        <button class="btn" id="u-add">Adicionar</button>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn danger" id="a-del">Excluir</button>
+      <button class="btn" id="a-cancel">Cancelar</button>
+      <button class="btn primary" id="a-save">Salvar</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- Diálogo da reunião -->
+<dialog id="dlgM" aria-labelledby="m-t">
+  <div class="dlg">
+    <h3 id="m-t">Reunião de resultado</h3>
+    <p class="lead" id="m-lead"></p>
+    <div class="two">
+      <label>QCA realizado<small id="m-pqca"></small><input id="m-qca" inputmode="numeric" placeholder="Ex.: 22.300"></label>
+      <label>QIA realizado<small id="m-pqia"></small><input id="m-qia" inputmode="numeric" placeholder="Ex.: 19.500"></label>
+    </div>
+    <p class="diffbox" id="m-diff"></p>
+    <div class="form5">
+      <div class="r"><div class="k">Fato<span>o resultado e o desvio</span></div><div class="v"><textarea id="m-fato" rows="2" aria-label="Fato" placeholder="Ex.: QIA 600 abaixo do plano; vendas caíram na 2ª quinzena"></textarea></div></div>
+      <div class="r"><div class="k">Causa<span>o motivo, com evidência</span></div><div class="v"><textarea id="m-causa" rows="2" aria-label="Causa" placeholder="Por que aconteceu"></textarea></div></div>
+      <div class="r"><div class="k">Ação<span>o que será feito</span></div><div class="v">
+        <input id="m-acao" aria-label="Ação corretiva" placeholder="Ação corretiva">
+        <div class="two"><input id="m-aresp" placeholder="Responsável" aria-label="Responsável pela ação"><input id="m-aprazo" type="date" aria-label="Prazo da ação"></div>
+        <label style="display:flex;gap:8px;align-items:center;font-weight:500" id="m-lancar-w"><input type="checkbox" id="m-lancar" style="width:auto"> Lançar esta ação no plano 5W2H</label>
+        <p class="warn" id="m-lancada" style="color:var(--muted)" hidden></p>
+      </div></div>
+    </div>
+    <label>Observações<textarea id="m-obs" rows="2" placeholder="Outras considerações da reunião"></textarea></label>
+    <label>Registrado por<input id="m-por" placeholder="Nome"></label>
+    <div class="actions">
+      <button class="btn" id="m-cancel">Cancelar</button>
+      <button class="btn primary" id="m-save">Salvar</button>
+    </div>
+  </div>
+</dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+const KEY='agenda-acoes-cg-2027-v5', PREV=['agenda-acoes-cg-2027-v4','agenda-acoes-cg-2027-v3'], NAMEKEY='agenda-cg-nome';
+const TEMAS={
+  vendas:{n:'Vendas',c:'var(--t-vendas)',d:'12 promotores e pelo menos 1.000 vendas por mês'},
+  ret:{n:'Retenção e adimplência',c:'var(--t-ret)',d:'Segurar o cliente antes do 7º mês sem pagar'},
+  clin:{n:'Clínica AmorSaúde',c:'var(--t-clin)',d:'Mais acesso e mais valor percebido'},
+  parc:{n:'Parcerias',c:'var(--t-parc)',d:'Sindicatos e conselhos de classe'},
+  gest:{n:'Gestão',c:'var(--t-gest)',d:'Acompanhar os números e decidir correções'}
+};
+const STATUS={agendar:'A agendar',agendado:'Agendado',and:'Em andamento',ok:'Concluído',sem:'Sem execução'};
+const MN=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const HOL={'2026-11-02':'Finados','2026-11-15':'Proclamação da República','2026-11-20':'Consciência Negra','2026-12-25':'Natal','2027-01-01':'Ano Novo','2027-02-08':'Carnaval','2027-02-09':'Carnaval','2027-03-26':'Sexta-feira Santa','2027-04-21':'Tiradentes','2027-05-01':'Dia do Trabalho','2027-05-27':'Corpus Christi','2027-08-26':'Aniversário de Campo Grande','2027-09-07':'Independência','2027-10-11':'Criação do MS','2027-10-12':'N. Sra. Aparecida','2027-11-02':'Finados','2027-11-15':'Proclamação da República','2027-11-20':'Consciência Negra','2027-12-25':'Natal','2028-01-01':'Ano Novo'};
+const PLANO={'2027-01':[22252,19448],'2027-02':[22729,19183],'2027-03':[23580,20444],'2027-04':[24285,21371],'2027-05':[25127,22589],'2027-06':[25919,22757],'2027-07':[26280,23547],'2027-08':[27026,24350],'2027-09':[27729,24097],'2027-10':[28546,25749],'2027-11':[29044,24775],'2027-12':[29377,25411]};
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+function bdays(y,m,n){const o=[],d=new Date(y,m,1);while(o.length<n){const w=d.getDay();if(w&&w!==6&&!HOL[iso(d)])o.push(iso(d));d.setDate(d.getDate()+1);}return o;}
+function day10(y,m){const d=new Date(y,m,10);while(d.getDay()===0||d.getDay()===6||HOL[iso(d)])d.setDate(d.getDate()+1);return iso(d);}
+const MEET=MN.map((nm,m)=>{const ds=day10(2027,m+1);return {ref:'2027-'+String(m+1).padStart(2,'0'),label:nm,de:ds,ate:ds};});
+const today=iso(new Date());
+const MINY=2026,MINM=10,MAXY=2028,MAXM=0;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=s=>s?s.slice(8,10)+'/'+s.slice(5,7):'';
+const fmtFull=s=>s?s.slice(8,10)+'/'+s.slice(5,7)+'/'+s.slice(0,4):'';
+const nf=n=>(n===''||n==null)?'':Number(n).toLocaleString('pt-BR');
+const num=v=>{const n=String(v).replace(/\D/g,'');return n===''?'':parseInt(n,10);};
+const brl=n=>Number(n).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+function parseBRL(v){
+  let s=String(v||'').replace(/R\$|\s/g,'');if(!s)return '';
+  if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');
+  else if(/^\d{1,3}(\.\d{3})+$/.test(s))s=s.replace(/\./g,'');
+  const n=parseFloat(s);return isNaN(n)?'':Math.round(n*100)/100;
+}
+const daysTo=ds=>Math.round((new Date(ds+'T12:00:00')-new Date(today+'T12:00:00'))/864e5);
+
+const UNID='Unidade Campo Grande';
+const CLIN='Clínica AmorSaúde Campo Grande';
+function seed(){
+  let i=0;const A=o=>{i++;return Object.assign({id:'a'+i,n:i,data:'',prazo:'',resp:'',contato:'',status:'agendar',onde:'',como:'',custo:'',quanto:'A definir',updates:[]},o);};
+  return [
+    A({titulo:'Início dos 4 novos promotores',tema:'vendas',data:'2026-11-10',status:'agendado',resp:'Gestão da unidade',obj:'Reforçar o time rumo a 12 promotores.',onde:UNID,como:'Integração no primeiro dia e trilha de treinamento de vendas: benefícios do Cartão de TODOS, parceria TIM, Refuturiza e avaliações no Google. Liberar acesso às ferramentas de atendimento.'}),
+    A({titulo:'Treinamento da equipe da clínica: turma 1',tema:'clin',prazo:'2026-11-30',resp:'Rodolfo e Ana Reis',obj:'Equipe da clínica apresentando o Cartão de TODOS ao paciente.',onde:CLIN,como:'Encontro no horário de atendimento, apresentando os benefícios do Cartão de TODOS e a forma de oferecer ao paciente.',updates:[{nome:'Planejamento',data:'2026-11-11',texto:'Segunda quinzena de novembro, no horário de atendimento. Falta marcar o dia.'}]}),
+    A({titulo:'Treinamento da equipe da clínica: turma 2',tema:'clin',prazo:'2026-11-30',resp:'Rodolfo e Ana Reis',obj:'Equipe da clínica apresentando o Cartão de TODOS ao paciente.',onde:CLIN,como:'Mesmo conteúdo da turma 1, para quem não participou do primeiro encontro.',updates:[{nome:'Planejamento',data:'2026-11-11',texto:'Segunda quinzena de novembro, no horário de atendimento. Falta marcar o dia.'}]}),
+    A({titulo:'Contratar mais 2 promotores',tema:'vendas',prazo:'2026-11-30',status:'and',resp:'Gestão da unidade',obj:'Fechar o time de 12 promotores ainda em novembro.',onde:UNID,como:'Recrutamento e seleção. Os aprovados entram na mesma trilha de integração dos novos promotores.'}),
+    A({titulo:'Montar combos de retenção',tema:'ret',prazo:'2026-12-31',resp:'Setor de adimplência',obj:'Oferta forte (exames, MAPA, Holter, limpeza) para o cliente acertar os 6 meses em atraso.',onde:'Setor de adimplência, com a clínica',como:'Montar pacotes com exames, MAPA, Holter e limpeza odontológica e usar na negociação com o cliente em atraso.',quanto:'A definir (depende dos itens odontológicos)'}),
+    A({titulo:'Trazer valores dos itens odontológicos ($57, $22 e $44)',tema:'ret',resp:'André',obj:'Fechar o custo dos combos odontológicos.',onde:'Parceiro odontológico da clínica',como:'Confirmar o valor de cada item e repassar ao setor de adimplência para fechar os combos.',quanto:'Itens de 57, 22 e 44 (a confirmar)'}),
+    A({titulo:'Time completo de 12 promotores produzindo',tema:'vendas',data:'2027-01-04',status:'agendado',resp:'Gestão da unidade',obj:'Capacidade de cerca de 1.180 vendas por mês.',onde:UNID,como:'Acompanhar a produção individual nas metas quinzenais e corrigir a rota na reunião mensal do time.'}),
+    A({titulo:'Início dos 2 ortopedistas',tema:'clin',data:'2027-01-04',status:'agendado',resp:'Jhonatan',obj:'Mais consultas e menos espera para o cliente.',onde:CLIN,como:'Abrir a agenda dos especialistas e divulgar aos clientes.'}),
+    A({titulo:'Contratar 2 ginecologistas e 1 otorrino',tema:'clin',resp:'Jhonatan',obj:'Cobrir as especialidades que estão faltando.',onde:CLIN,como:'Recrutar os especialistas, definir os dias de atendimento e abrir a agenda.'}),
+    A({titulo:'Chegar a 4.500 consultas por mês',tema:'clin',obj:'Hoje são 3.500. Mais acesso para quem já é cliente.',onde:CLIN,como:'Ampliar a agenda com os novos especialistas e divulgar a disponibilidade aos clientes.'}),
+    A({titulo:'100 limpezas odontológicas bonificadas',tema:'clin',obj:'Valor percebido e apoio na negociação com o inadimplente.',onde:CLIN,como:'Oferecer a limpeza como bonificação e usar como argumento na negociação com o cliente em atraso.',quanto:'Sem custo'}),
+    A({titulo:'Calendário das ações de divulgação de 2027',tema:'clin',resp:'Ana Reis',obj:'Levar Cartão e AmorSaúde às ações na cidade e atrair novos clientes.',onde:'Eventos e ações em Campo Grande/MS',como:'Mapear os eventos de 2027 e definir em quais o Cartão de TODOS e a AmorSaúde estarão presentes.'}),
+    A({titulo:'Definir valor mínimo para concorrer às cestas e preços dos procedimentos',tema:'clin',resp:'Clínica AmorSaúde',obj:'Lançar a campanha das cestas de café da manhã.',onde:CLIN,como:'Definir a regra de participação e a tabela de preços dos procedimentos e então lançar a campanha.'}),
+    A({titulo:'Contato com sindicatos e conselhos de classe',tema:'parc',resp:'Rodolfo',obj:'Novos canais de venda. Dental Vidas é parceira odontológica da AmorSaúde.',onde:'Sindicatos e conselhos de classe de Campo Grande/MS',como:'Prospecção pelo LinkedIn e agendamento de apresentações do Cartão de TODOS.'}),
+    A({titulo:'Definir quem consolida os indicadores',tema:'gest',obj:'Números prontos para cada reunião de resultado.',onde:UNID,como:'Escolher o responsável e combinar a entrega de QCA e QIA antes de cada reunião de resultado.'})
+  ];
+}
+
+// Carrega os dados; migra a versão anterior mantendo o que a equipe já registrou
+let db=null;
+try{db=JSON.parse(localStorage.getItem(KEY)||'null');}catch(e){}
+if(!db||!Array.isArray(db.acoes)){
+  const base=seed();let old=null;
+  for(const k of PREV){try{const o=JSON.parse(localStorage.getItem(k)||'null');if(o&&Array.isArray(o.acoes)){old=o;break;}}catch(e){}}
+  if(old){
+    old.acoes.forEach(a=>{const s=base.find(b=>b.id===a.id&&b.titulo.split(' (')[0]===String(a.titulo||'').split(' (')[0]);
+      ['onde','como','quanto'].forEach(k=>{if(a[k]==null)a[k]=s?s[k]:(k==='quanto'?'A definir':'');});});
+    db={acoes:old.acoes,resultados:old.resultados||{}};
+  } else db={acoes:base,resultados:{}};
+}
+// Junta o plano de ação "25 mil QIAs até julho de 2027" (planilha do franqueado, 11/11/2026).
+// Só substitui valores que ainda estão como no plano original; o que a equipe já editou é mantido.
+function mergePlanilha25k(){
+  if(db.merge25k)return;
+  const base=seed(),orig=id=>base.find(b=>b.id===id)||{};
+  const NOTA='Atualizada com o plano de ação 25 mil QIAs (planilha de 11/11/2026).';
+  const TREIN={obj:'Conhecimento dos processos e rotinas da clínica (médicos, sala de coleta) e do Cartão de TODOS.',resp:'Rodolfo, Ana Reis, Letícia e Kleiton',onde:'Cartão de TODOS e Clínica AmorSaúde',como:'Treinamento com slides e parte prática no próprio Cartão de TODOS e na clínica.',data:'2026-11-16',prazo:'2026-11-20',status:'and',quanto:'Sem custo'};
+  const PATCH={
+    a1:{status:'ok',resp:'Rodolfo',como:'Processo seletivo concluído (01/10 a 01/11/2026), seguido de integração e trilha de treinamento de vendas: benefícios do Cartão de TODOS, parceria TIM, Refuturiza e avaliações no Google.'},
+    a2:Object.assign({titulo:'Treinamento das equipes AmorSaúde e Cartão de TODOS: turma 1'},TREIN),
+    a3:Object.assign({titulo:'Treinamento das equipes AmorSaúde e Cartão de TODOS: turma 2'},TREIN),
+    a4:{resp:'Rodolfo',obj:'Aumentar as vendas e o número de QIAs, fechando o time de 12 promotores.',data:'2026-11-01',como:'Processo seletivo. Os aprovados entram na trilha de integração dos novos promotores.'},
+    a9:{resp:'Jhonatan e Ana',obj:'A demanda nessas especialidades aumentou e está gerando desconforto nos pacientes.',data:'2026-11-11',prazo:'2027-03-01',status:'and',como:'Buscar profissionais pelo LinkedIn, por indicação e pela plataforma CredenciAmor; depois, definir os dias de atendimento e abrir a agenda.'},
+    a11:{titulo:'Bonificações para clientes em processo de desfiliação',tema:'ret',obj:'Reverter a desfiliação em massa e por outros motivos, com valor percebido na negociação.',resp:'André, dentistas e Rodolfo',onde:'Clínica AmorSaúde e Cartão de TODOS',como:'Oferecer 100 limpezas bonificadas, clareamento caseiro, exames laboratoriais e procedimentos sem custo ao cliente em processo de desfiliação.',data:'2026-11-11',prazo:'2027-07-31',status:'and',quanto:'Limpezas sem custo; demais itens a definir'},
+    a12:{titulo:'Presença em eventos e calendário de divulgação',obj:'Visibilidade da Clínica AmorSaúde e do Cartão de TODOS e atração de novos clientes.',resp:'Ana Reis e Rodolfo',onde:'Corridas, feiras e eventos de grande porte em Campo Grande/MS',como:'Mapear os eventos até julho de 2027 e marcar presença em corridas, feiras e eventos de grande porte.',data:'2026-11-11',prazo:'2027-07-31',status:'and'},
+    a13:{titulo:'Brindes e sorteios aos pacientes',obj:'Fidelizar o paciente na clínica com brindes e sorteios a cada valor pré-definido (campanha das cestas de café da manhã).',resp:'Jhonatan e Elaine',como:'Definir os meses festivos, o valor mínimo para concorrer e os preços dos procedimentos; depois, lançar a campanha.',data:'2026-12-01',prazo:'2026-12-31',status:'and'}
+  };
+  Object.keys(PATCH).forEach(id=>{
+    const a=db.acoes.find(x=>x.id===id);if(!a)return;const o=orig(id);let mud=false;
+    Object.keys(PATCH[id]).forEach(k=>{const cur=a[k]==null?'':a[k];if(cur===''||cur===o[k]){if(cur!==PATCH[id][k]){a[k]=PATCH[id][k];mud=true;}}});
+    if(mud){if(!Array.isArray(a.updates))a.updates=[];a.updates.push({nome:'Gestão',data:today,texto:NOTA});}
+  });
+  const NOVAS=[
+    {id:'a16',tema:'clin',titulo:'Projeto escola',obj:'Levar a AmorSaúde às escolas. A ação inicial será na escola da filha do André.',onde:'Escola pública',resp:'André e dentistas',como:'Ação presencial nas escolas, com escovação e entrega de brindes.',data:'2026-12-01',prazo:'2026-12-31',status:'and'},
+    {id:'a17',tema:'gest',titulo:'Curso de primeiros socorros',obj:'Capacitar os colaboradores para agir em caso de sinistro.',onde:'Clínica, academia, ótica e Cartão de TODOS',resp:'Jhonatan, Rodolfo, Monise e Rômulo',como:'Capacitação dos colaboradores para atendimento em situações de sinistro.',data:'2026-11-11',prazo:'2026-12-31',status:'and'},
+    {id:'a18',tema:'clin',titulo:'Ajuste dos oftalmologistas',obj:'Acabar com o desgaste causado pela cobrança de exames sem necessidade.',onde:'Clínica AmorSaúde',resp:'Jhonatan, Kleiton e Ana',como:'Novos profissionais PJ como oftalmologistas, orientação sobre a cobrança correta de consulta e procedimentos, e implantação de um protocolo de critérios para cada procedimento.',data:'2026-11-11',prazo:'2027-01-31',status:'and'},
+    {id:'a19',tema:'clin',titulo:'Verificação do app Cartão de TODOS no atendimento',obj:'Aumentar a adesão dos filiados ao app do Cartão de TODOS, hoje baixa.',onde:'Clínica AmorSaúde',resp:'Ana e André',como:'Treinar os colaboradores: em todo atendimento o paciente mostra a carteirinha no app. Se apresentar o cartão físico, pedir a autenticação pelo app; se não tiver o app, orientar a baixar e a vincular o cartão físico.',data:'2026-12-01',prazo:'2027-12-31',status:'and'},
+    {id:'a20',tema:'gest',titulo:'Reunião mensal de resultados',obj:'Apresentar os resultados do mês e decidir correções.',onde:'Clínica AmorSaúde e Cartão de TODOS',resp:'Jhonatan e Rodolfo',como:'Apresentação dos dados consolidados todo dia 10 de cada mês, com análise FCA (fato, causa e ação) quando houver desvio.',data:'2026-12-10',prazo:'2027-12-10',status:'and'},
+    {id:'a21',tema:'gest',titulo:'Boletim mensal aos colaboradores',obj:'Informar os colaboradores sobre os números do mês anterior e outras informações.',onde:'Clínica AmorSaúde e Cartão de TODOS',resp:'Jhonatan e Rodolfo',como:'Após o fechamento dos dados, enviar todo dia 15 um boletim com os números e as informações pertinentes.',data:'2026-12-15',prazo:'2027-12-15',status:'and'},
+    {id:'a22',tema:'clin',titulo:'Cashback na clínica',obj:'Estimular o uso do app e do Cartão de TODOS nos parceiros pelos próprios colaboradores.',onde:'Clínica AmorSaúde',resp:'Jhonatan e coordenadores',como:'Cada colaborador deve ter R$ 5,00 de cashback por quinzena no app do Cartão de TODOS. Quem não cumprir não recebe a bonificação.',data:'2027-01-01',prazo:'2027-12-31',status:'and'}
+  ];
+  const used=new Set(db.acoes.map(a=>a.n|0));
+  NOVAS.forEach(x=>{
+    if(db.acoes.some(a=>a.id===x.id))return;
+    let n=+x.id.slice(1);if(used.has(n))n=Math.max(0,...used)+1;used.add(n);
+    db.acoes.push(Object.assign({n,contato:'',custo:'',quanto:'A definir',updates:[{nome:'Gestão',data:today,texto:'Incluída a partir do plano de ação 25 mil QIAs (planilha de 11/11/2026).'}]},x));
+  });
+  db.merge25k=true;
+}
+function normalize(){
+  let max=db.acoes.reduce((m,a)=>Math.max(m,a.n|0),0);
+  db.acoes.forEach(a=>{['onde','como','quanto','custo','resp','contato','obj','data','prazo'].forEach(k=>{if(a[k]==null)a[k]='';});if(!Array.isArray(a.updates))a.updates=[];if(!a.n){const m=/^a(\d+)$/.exec(a.id||'');a.n=(m&&!db.acoes.some(b=>b!==a&&b.n===+m[1]))?+m[1]:++max;max=Math.max(max,a.n);}if(!TEMAS[a.tema])a.tema='gest';if(!STATUS[a.status])a.status='agendar';});
+}
+mergePlanilha25k();
+normalize();save();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){}}
+let myName='';try{myName=localStorage.getItem(NAMEKEY)||'';}catch(e){}
+
+const cod=a=>'A'+String(a.n).padStart(2,'0');
+const dateOf=a=>a.data||a.prazo||'';
+const keyDate=a=>a.prazo||a.data||'';
+const isLate=a=>{if(a.status==='ok'||a.status==='sem')return false;if(a.prazo&&a.prazo<today)return true;if(a.data&&a.data<today&&(a.status==='agendado'||a.status==='agendar'))return true;return false;};
+const lateSince=a=>(a.prazo&&a.prazo<today)?a.prazo:a.data;
+const noResp=a=>!String(a.resp||'').trim();
+const hasCost=a=>a.custo!==''&&a.custo!=null;
+const in30=a=>{if(a.status==='ok'||a.status==='sem'||isLate(a))return false;const k=keyDate(a);if(!k)return false;const d=daysTo(k);return d>=0&&d<=30;};
+function rel(d){if(d===0)return 'hoje';if(d===1)return 'amanhã';if(d===-1)return 'ontem';return d>0?'em '+d+' dias':'há '+(-d)+' dias';}
+function quantoHtml(a){
+  const obs=String(a.quanto||'').trim();
+  if(hasCost(a))return '<b class="num" style="color:var(--ink)">'+brl(a.custo)+'</b>'+(obs&&!/a definir/i.test(obs)?'<span class="sub2">'+esc(obs)+'</span>':'');
+  if(!obs||/^a definir$/i.test(obs))return '<span class="na">A definir</span>';
+  return esc(obs);
+}
+
+const state={f:null,tema:'',sit:'',q:'',sort:'prazo',y:0,m:0};
+function clampMonth(y,m){if(y<MINY||(y===MINY&&m<MINM)){y=MINY;m=MINM;}if(y>MAXY||(y===MAXY&&m>MAXM)){y=MAXY;m=MAXM;}return [y,m];}
+{const d=new Date();[state.y,state.m]=clampMonth(d.getFullYear(),d.getMonth());}
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(e._h);e._h=setTimeout(()=>e.classList.remove('show'),2200);}
+
+// Filtros
+$('#ftema').innerHTML='<option value="">Todos os temas</option>'+Object.keys(TEMAS).map(k=>'<option value="'+k+'">'+TEMAS[k].n+'</option>').join('');
+$('#fsit').innerHTML='<option value="">Todas as situações</option>'+Object.keys(STATUS).map(k=>'<option value="'+k+'">'+STATUS[k]+'</option>').join('');
+const STATF={late:isLate,in30:in30,and:a=>a.status==='and',ok:a=>a.status==='ok',nores:noResp,nodate:a=>!dateOf(a)};
+function pass(a){
+  if(state.f&&!STATF[state.f](a))return false;
+  if(state.tema&&a.tema!==state.tema)return false;
+  if(state.sit&&a.status!==state.sit)return false;
+  if(state.q){const h=[cod(a),a.titulo,a.resp,a.onde,a.como,a.obj,a.quanto].join(' ').toLowerCase();if(!h.includes(state.q))return false;}
+  return true;
+}
+const anyFilter=()=>!!(state.f||state.tema||state.sit||state.q);
+
+function renderStats(){
+  const a=db.acoes;
+  const cards=[['','Ações no plano','',a.length],['late','Atrasadas','s-late',a.filter(isLate).length],['in30','Vencem em 30 dias','s-warn',a.filter(in30).length],['and','Em andamento','s-doing',a.filter(STATF.and).length],['ok','Concluídas','s-ok',a.filter(STATF.ok).length],['nores','Sem responsável','',a.filter(noResp).length],['nodate','Sem data','',a.filter(STATF.nodate).length]];
+  $('#stats').innerHTML=cards.map(c=>'<button class="stat '+c[2]+'" data-stat="'+c[0]+'" aria-pressed="'+((state.f||'')===c[0])+'"><b class="num">'+c[3]+'</b><span>'+c[1]+'</span></button>').join('');
+}
+
+// Calendário
+function eventsOn(ds){
+  const ev=[];
+  db.acoes.filter(pass).forEach(a=>{
+    if(a.data===ds)ev.push({k:'a',a,dl:false});
+    if(a.prazo===ds&&a.prazo!==a.data)ev.push({k:'a',a,dl:true});
+  });
+  if(!anyFilter())MEET.forEach(m=>{if(m.de===ds)ev.push({k:'m',m});});
+  return ev;
+}
+function evBtn(e){
+  if(e.k==='m')return '<button class="ev meet" style="--c:var(--ink2)" data-meet="'+e.m.ref+'" title="Reunião de resultado de '+e.m.label.toLowerCase()+'">Resultado '+e.m.label.slice(0,3).toLowerCase()+'</button>';
+  const t=TEMAS[e.a.tema],a=e.a;
+  return '<button class="ev'+(e.dl?' dl':'')+(a.status==='ok'?' done':'')+(isLate(a)?' late':'')+'" style="--c:'+t.c+'" data-loc="'+a.id+'" title="'+cod(a)+' · '+(e.dl?'Prazo final: ':'Início: ')+esc(a.titulo)+'"><span class="cd">'+cod(a)+'</span>'+esc(a.titulo)+'</button>';
+}
+function renderCal(){
+  const y=state.y,m=state.m;$('#mtitle').textContent=MN[m]+' de '+y;
+  $('#prev').disabled=(y===MINY&&m===MINM);$('#next').disabled=(y===MAXY&&m===MAXM);
+  $('#calnote').textContent=anyFilter()?'Filtro ativo':'';
+  let h=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map(d=>'<div class="dow">'+d+'</div>').join('');
+  const first=new Date(y,m,1);const start=new Date(y,m,1-first.getDay());
+  const cells=Math.ceil((first.getDay()+new Date(y,m+1,0).getDate())/7)*7;
+  for(let i=0;i<cells;i++){
+    const d=new Date(start);d.setDate(start.getDate()+i);const ds=iso(d);const inM=d.getMonth()===m;
+    if(!inM){h+='<div class="day out"><span class="n">'+d.getDate()+'</span></div>';continue;}
+    const ev=eventsOn(ds);const wk=d.getDay()===0||d.getDay()===6;
+    h+='<div class="day'+(wk?' wk':'')+(ds===today?' today':'')+'" data-day="'+ds+'" aria-label="'+d.getDate()+' de '+MN[m]+'"><span class="n">'+d.getDate()+'</span>'+(HOL[ds]?'<span class="hol">'+HOL[ds]+'</span>':'')+ev.slice(0,3).map(evBtn).join('')+(ev.length>3?'<span class="more">+'+(ev.length-3)+' mais</span>':'')+'</div>';
+  }
+  $('#grid').innerHTML=h;
+}
+
+// Painel de prazos
+function dli(a,whenHtml){
+  const t=TEMAS[a.tema];
+  return '<button class="dli" style="--c:'+t.c+'" data-loc="'+a.id+'"><span class="cd">'+cod(a)+'</span><span><span class="tt">'+esc(a.titulo)+'</span><span class="mt">'+(noResp(a)?'Sem responsável':esc(a.resp))+'</span></span><span class="when">'+whenHtml+'</span></button>';
+}
+function renderDeadlines(){
+  const list=db.acoes.filter(pass);
+  const late=list.filter(isLate).sort((x,y)=>lateSince(x)<lateSince(y)?-1:1);
+  const soon=list.filter(a=>a.status!=='ok'&&a.status!=='sem'&&!isLate(a)&&keyDate(a)).sort((x,y)=>keyDate(x)<keyDate(y)?-1:1);
+  const nod=list.filter(a=>!dateOf(a)&&a.status!=='ok');
+  let h='<div class="dl-sec"><h3 class="red"><span>Atrasadas</span><span>'+late.length+'</span></h3>'+(late.length?late.map(a=>{const s=lateSince(a);return dli(a,'<span class="r-late">'+fmtFull(s)+'</span><small>'+rel(daysTo(s))+'</small>');}).join(''):'<p class="dl-empty">Nenhuma ação atrasada.</p>')+'</div>';
+  h+='<div class="dl-sec"><h3><span>Próximos prazos</span><span>'+soon.length+'</span></h3>'+(soon.length?soon.map(a=>{const k=keyDate(a),d=daysTo(k);return dli(a,'<span class="'+(d<=7?'r-soon':'')+'">'+fmtFull(k)+'</span><small>'+(a.prazo?'prazo ':'início ')+rel(d)+'</small>');}).join(''):'<p class="dl-empty">Nada com data à frente.</p>')+'</div>';
+  h+='<div class="dl-sec"><h3><span>Sem data definida</span><span>'+nod.length+'</span></h3>'+(nod.length?nod.map(a=>dli(a,'<span class="r-mut">Sem data</span>')).join(''):'<p class="dl-empty">Todas as ações têm data.</p>')+'</div>';
+  $('#dlbody').innerHTML=h;
+  $('#dlsum').textContent=late.length+' atrasada'+(late.length===1?'':'s')+' · '+list.filter(in30).length+' em 30 dias';
+}
+
+// Tabela 5W2H
+function rowHtml(a){
+  const t=TEMAS[a.tema],late=isLate(a);
+  let when='';
+  if(a.prazo){const d=daysTo(a.prazo);when+='<b>Prazo '+fmtFull(a.prazo)+'</b>'+(a.status==='ok'?'<span class="rel r-ok">Concluída</span>':a.status==='sem'?'':'<span class="rel '+(d<0?'r-late':d<=7?'r-soon':'r-mut')+'">'+(d<0?'Venceu '+rel(d):'Vence '+rel(d))+'</span>');if(a.data)when+='<span class="exec">Início '+fmtFull(a.data)+'</span>';}
+  else if(a.data){const d=daysTo(a.data);when+='<b>Execução '+fmtFull(a.data)+'</b>'+(a.status==='ok'?'<span class="rel r-ok">Concluída</span>':a.status==='sem'?'':'<span class="rel '+(late?'r-late':d>=0&&d<=7?'r-soon':'r-mut')+'">'+(late?'Atrasada, '+rel(d):rel(d).replace(/^./,c=>c.toUpperCase()))+'</span>');}
+  else when='<span class="na">A definir</span>';
+  const na='<span class="na">A definir</span>';
+  return '<tr class="row" id="row-'+a.id+'" style="--c:'+t.c+'">'+
+    '<td class="cod" data-l="Código"><span>'+cod(a)+'</span><span class="tema mobonly">'+t.n+'</span></td>'+
+    '<td class="what" data-l="O quê">'+esc(a.titulo)+(state.sort!=='tema'?'<small style="color:'+t.c+'">'+t.n+'</small>':'')+'</td>'+
+    '<td class="why" data-l="Por quê">'+(a.obj?esc(a.obj):na)+'</td>'+
+    '<td data-l="Onde">'+(a.onde?esc(a.onde):na)+'</td>'+
+    '<td class="when" data-l="Quando">'+when+'</td>'+
+    '<td data-l="Quem">'+(noResp(a)?'<span class="na" style="color:var(--late);font-style:normal;font-weight:600">Sem responsável</span>':esc(a.resp)+(a.contato?'<span class="sub2">'+esc(a.contato)+'</span>':''))+'</td>'+
+    '<td class="how" data-l="Como">'+(a.como?esc(a.como):na)+'</td>'+
+    '<td data-l="Quanto">'+quantoHtml(a)+'</td>'+
+    '<td data-l="Situação"><span class="badges"><span class="badge b-'+a.status+'">'+STATUS[a.status]+'</span>'+(late?'<span class="badge b-late">Atrasada</span>':'')+'</span>'+(a.updates.length?'<span class="sub2" style="margin-top:4px">'+a.updates.length+' atualiza'+(a.updates.length===1?'ção':'ções')+'</span>':'')+'<button class="btn sm editb" data-open="'+a.id+'" aria-label="Editar '+cod(a)+'">Editar</button></td>'+
+  '</tr>';
+}
+function sortList(l){
+  const kd=a=>keyDate(a)||'9999';
+  if(state.sort==='cod')return l.sort((x,y)=>x.n-y.n);
+  return l.sort((x,y)=>kd(x)<kd(y)?-1:kd(x)>kd(y)?1:x.n-y.n);
+}
+function renderTable(){
+  const list=sortList(db.acoes.filter(pass));
+  let h='';
+  if(!list.length)h='<tr><td colspan="9" class="empty">Nenhuma ação encontrada com esses filtros.</td></tr>';
+  else if(state.sort==='tema'){
+    Object.keys(TEMAS).forEach(k=>{const it=list.filter(a=>a.tema===k);if(!it.length)return;const t=TEMAS[k];
+      h+='<tr class="grp" style="--c:'+t.c+'"><td colspan="9">'+t.n+'<span>'+t.d+' · '+it.length+(it.length===1?' ação':' ações')+'</span></td></tr>'+it.map(rowHtml).join('');});
+  } else h=list.map(rowHtml).join('');
+  $('#tbody').innerHTML=h;
+  const total=list.reduce((s,x)=>s+(hasCost(x)?Number(x.custo):0),0),semv=list.filter(a=>!hasCost(a)&&!/^sem custo$/i.test(String(a.quanto).trim())).length;
+  $('#tfoot').innerHTML=list.length?'<tr><td class="ftc" colspan="7" style="text-align:right;font-weight:600">Custo previsto ('+list.length+' ações exibidas)</td><td colspan="2"><b class="num">'+brl(total)+'</b>'+(semv?'<span class="sub2">'+semv+' ainda sem valor</span>':'')+'</td></tr>':'';
+  $('#activef').innerHTML=anyFilter()?list.length+' de '+db.acoes.length+' ações <button class="btn link" id="clearf">Limpar filtros</button>':db.acoes.length+' ações';
+}
+
+// Resultados
+function renderMonths(){
+  $('#months').innerHTML=MEET.map(x=>{const r=db.resultados[x.ref]||{},p=PLANO[x.ref];const has=r.qia!==undefined&&r.qia!=='';const hasC=r.qca!==undefined&&r.qca!=='';
+    let line='<span class="wait">Reunião em '+fmt(x.de)+'</span>';
+    if(has){const d=r.qia-p[1];line='<span class="'+(d>=0?'pos':'neg')+'">'+(d>=0?'+':'−')+nf(Math.abs(d))+' QIA vs plano</span>';}
+    return '<button class="mcard" data-meet="'+x.ref+'"><span class="top"><b>'+x.label+'</b></span>'+
+      '<span class="vals"><span>QCA<strong class="'+(hasC?'':'pend')+'">'+(hasC?nf(r.qca):'—')+'</strong><em>plano '+nf(p[0])+'</em></span><span>QIA<strong class="'+(has?'':'pend')+'">'+(has?nf(r.qia):'—')+'</strong><em>plano '+nf(p[1])+'</em></span></span>'+
+      '<span class="res-line">'+line+'</span>'+((r.fato||r.causa||r.acao)?'<span class="wait" style="font-size:11.5px">FCA registrado'+(r.acaoId&&db.acoes.find(a=>a.id===r.acaoId)?' · ação '+cod(db.acoes.find(a=>a.id===r.acaoId)):'')+'</span>':'')+'</button>';}).join('');
+}
+function render(){renderStats();renderCal();renderDeadlines();renderTable();renderMonths();}
+
+// Localizar ação na tabela
+function locate(id){
+  let row=document.getElementById('row-'+id);
+  if(!row){state.f=null;state.tema='';state.sit='';state.q='';$('#q').value='';$('#ftema').value='';$('#fsit').value='';render();row=document.getElementById('row-'+id);}
+  if(!row)return;
+  row.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});
+  row.classList.remove('flash');void row.offsetWidth;row.classList.add('flash');
+  setTimeout(()=>row.classList.remove('flash'),2200);
+  const b=row.querySelector('[data-open]');if(b)b.focus({preventScroll:true});
+}
+
+// Eventos
+$('#prev').onclick=()=>{state.m--;if(state.m<0){state.m=11;state.y--;}render();};
+$('#next').onclick=()=>{state.m++;if(state.m>11){state.m=0;state.y++;}render();};
+$('#today').onclick=()=>{const d=new Date();[state.y,state.m]=clampMonth(d.getFullYear(),d.getMonth());render();};
+$('#q').addEventListener('input',e=>{state.q=e.target.value.trim().toLowerCase();render();});
+$('#ftema').onchange=e=>{state.tema=e.target.value;render();};
+$('#fsit').onchange=e=>{state.sit=e.target.value;render();};
+$('#sort').onchange=e=>{state.sort=e.target.value;renderTable();};
+
+document.addEventListener('click',e=>{
+  if(e.target.closest('dialog'))return;
+  if(e.target.id==='clearf'){state.f=null;state.tema='';state.sit='';state.q='';$('#q').value='';$('#ftema').value='';$('#fsit').value='';render();return;}
+  const st=e.target.closest('[data-stat]');if(st){const v=st.dataset.stat;state.f=(!v||state.f===v)?null:v;render();if(v)document.getElementById('plano').scrollIntoView({block:'start'});return;}
+  const l=e.target.closest('[data-loc]');if(l){locate(l.dataset.loc);return;}
+  const o=e.target.closest('[data-open]');if(o){openA(db.acoes.find(a=>a.id===o.dataset.open));return;}
+  const mt=e.target.closest('[data-meet]');if(mt){openM(mt.dataset.meet);return;}
+  const day=e.target.closest('[data-day]');if(day){openA(null,day.dataset.day);}
+});
+
+// Diálogo da ação
+const dA=$('#dlgA');let cur=null,curStatus='agendar',curUpd=[];
+$('#a-tema').innerHTML=Object.keys(TEMAS).map(k=>'<option value="'+k+'">'+TEMAS[k].n+'</option>').join('');
+function paintStatus(){$('#a-status').innerHTML=Object.keys(STATUS).map(k=>'<button type="button" data-st="'+k+'" aria-pressed="'+(k===curStatus)+'">'+STATUS[k]+'</button>').join('');$('#a-warn').hidden=!(curStatus==='agendado'&&!$('#a-data').value);}
+$('#a-status').addEventListener('click',e=>{const b=e.target.closest('[data-st]');if(!b)return;curStatus=b.dataset.st;paintStatus();});
+$('#a-data').addEventListener('change',()=>{if($('#a-data').value&&curStatus==='agendar')curStatus='agendado';paintStatus();});
+const fmtMoney=v=>v===''?'':Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+$('#a-custo').addEventListener('blur',e=>{e.target.value=fmtMoney(parseBRL(e.target.value));});
+function paintUpd(){$('#a-upds').innerHTML=curUpd.length?curUpd.map(u=>'<div class="upd"><b>'+esc(u.nome)+'</b><span>'+fmtFull(u.data)+'</span><br>'+esc(u.texto)+'</div>').join(''):'<p class="warn" style="color:var(--muted)">Nenhuma atualização ainda.</p>';}
+function openA(a,day){
+  cur=a||null;$('#a-t').textContent=a?cod(a)+' · Editar ação':'Nova ação';
+  const v=a||{titulo:'',tema:state.tema||'gest',resp:'',data:day||'',prazo:'',contato:'',obj:'',onde:'',como:'',custo:'',quanto:'A definir',status:day?'agendado':'agendar',updates:[]};
+  $('#a-titulo').value=v.titulo;$('#a-tema').value=TEMAS[v.tema]?v.tema:'gest';$('#a-resp').value=v.resp||'';$('#a-data').value=v.data||'';$('#a-prazo').value=v.prazo||'';$('#a-contato').value=v.contato||'';$('#a-obj').value=v.obj||'';
+  $('#a-onde').value=v.onde||'';$('#a-como').value=v.como||'';$('#a-quanto').value=v.quanto||'';$('#a-custo').value=hasCost(v)?fmtMoney(v.custo):'';
+  curStatus=v.status;curUpd=(v.updates||[]).slice();paintStatus();paintUpd();
+  $('#u-nome').value=myName;$('#u-texto').value='';$('#a-del').hidden=!a;
+  dA.showModal();dA.scrollTop=0;$('#a-titulo').focus();
+}
+$('#u-add').onclick=()=>{
+  const n=$('#u-nome').value.trim(),t=$('#u-texto').value.trim();
+  if(!n){toast('Escreva seu nome.');$('#u-nome').focus();return;}
+  if(!t){toast('Escreva a atualização.');$('#u-texto').focus();return;}
+  myName=n;try{localStorage.setItem(NAMEKEY,n);}catch(e){}
+  curUpd.push({nome:n,data:today,texto:t});$('#u-texto').value='';paintUpd();
+  if(cur){cur.updates=curUpd.slice();cur.ts=Date.now();save();render();toast('Atualização adicionada.');}
+};
+$('#u-texto').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('#u-add').click();}});
+$('#a-cancel').onclick=()=>dA.close();
+$('#a-save').onclick=()=>{
+  const t=$('#a-titulo').value.trim();if(!t){toast('Escreva o que será feito.');$('#a-titulo').focus();return;}
+  if(curStatus==='agendado'&&!$('#a-data').value){$('#a-warn').hidden=false;$('#a-data').focus();return;}
+  const d={ts:Date.now(),titulo:t,tema:$('#a-tema').value,resp:$('#a-resp').value.trim(),data:$('#a-data').value,prazo:$('#a-prazo').value,contato:$('#a-contato').value.trim(),obj:$('#a-obj').value.trim(),onde:$('#a-onde').value.trim(),como:$('#a-como').value.trim(),custo:parseBRL($('#a-custo').value),quanto:$('#a-quanto').value.trim(),status:curStatus,updates:curUpd.slice()};
+  let id;
+  if(cur){Object.assign(cur,d);id=cur.id;}
+  else{id='n'+Date.now();db.acoes.push(Object.assign({id,n:db.acoes.reduce((m,a)=>Math.max(m,a.n|0),0)+1},d));}
+  save();dA.close();render();toast(cur?'Ação salva.':'Ação criada.');setTimeout(()=>locate(id),80);
+};
+$('#a-del').onclick=()=>{if(cur&&confirm('Excluir '+cod(cur)+' · “'+cur.titulo+'”?')){db.acoes=db.acoes.filter(a=>a!==cur);save();dA.close();render();toast('Ação excluída.');}};
+
+// Diálogo da reunião
+const dM=$('#dlgM');let curM=null;
+function diffTxt(){const p=PLANO[curM.ref];const q=num($('#m-qia').value);if(q===''){$('#m-diff').textContent='';return;}const d=q-p[1];$('#m-diff').className='diffbox '+(d>=0?'pos':'neg');$('#m-diff').textContent=(d>=0?'+':'−')+nf(Math.abs(d))+' QIA em relação ao plano';}
+function openM(ref){
+  curM=MEET.find(x=>x.ref===ref);const r=db.resultados[ref]||{},p=PLANO[ref];
+  $('#m-t').textContent='Resultado de '+curM.label.toLowerCase()+' de 2027';
+  $('#m-lead').textContent='Reunião em '+fmtFull(curM.de)+'. Registre os números e a análise FCA (fato, causa e ação).';
+  $('#m-pqca').textContent='plano: '+nf(p[0]);$('#m-pqia').textContent='plano: '+nf(p[1]);
+  $('#m-qca').value=nf(r.qca);$('#m-qia').value=nf(r.qia);$('#m-obs').value=r.obs||'';$('#m-por').value=r.por||myName;
+  $('#m-fato').value=r.fato||'';$('#m-causa').value=r.causa||'';$('#m-acao').value=r.acao||'';$('#m-aresp').value=r.aresp||'';$('#m-aprazo').value=r.aprazo||'';$('#m-lancar').checked=false;
+  const la=r.acaoId&&db.acoes.find(a=>a.id===r.acaoId);$('#m-lancar-w').hidden=!!la;$('#m-lancada').hidden=!la;if(la)$('#m-lancada').textContent='Ação corretiva lançada no plano como '+cod(la)+'.';
+  diffTxt();dM.showModal();$('#m-qca').focus();
+}
+$('#m-qia').addEventListener('input',diffTxt);
+['#m-qca','#m-qia'].forEach(s=>$(s).addEventListener('blur',e=>{e.target.value=nf(num(e.target.value));}));
+$('#m-cancel').onclick=()=>dM.close();
+$('#m-save').onclick=()=>{
+  const prev=db.resultados[curM.ref]||{};
+  const r={ts:Date.now(),qca:num($('#m-qca').value),qia:num($('#m-qia').value),obs:$('#m-obs').value.trim(),por:$('#m-por').value.trim(),
+    fato:$('#m-fato').value.trim(),causa:$('#m-causa').value.trim(),acao:$('#m-acao').value.trim(),aresp:$('#m-aresp').value.trim(),aprazo:$('#m-aprazo').value,acaoId:prev.acaoId||''};
+  let nova=null;
+  if($('#m-lancar').checked&&!(r.acaoId&&db.acoes.find(a=>a.id===r.acaoId))){
+    if(!r.acao){toast('Escreva a ação corretiva para lançar no plano.');$('#m-acao').focus();return;}
+    nova={id:'n'+Date.now(),n:db.acoes.reduce((m,a)=>Math.max(m,a.n|0),0)+1,ts:Date.now(),tema:'gest',titulo:r.acao,obj:'Correção do resultado de '+curM.label.toLowerCase()+(r.causa?'. Causa: '+r.causa:'.'),onde:'',como:'',resp:r.aresp,contato:'',data:'',prazo:r.aprazo,custo:'',quanto:'A definir',status:'agendar',
+      updates:[{nome:r.por||'Reunião de resultado',data:today,texto:'Criada a partir do FCA da reunião de resultado de '+curM.label.toLowerCase()+'.'+(r.fato?' Fato: '+r.fato:'')}]};
+    db.acoes.push(nova);r.acaoId=nova.id;
+  }
+  db.resultados[curM.ref]=r;
+  if($('#m-por').value.trim()){myName=$('#m-por').value.trim();try{localStorage.setItem(NAMEKEY,myName);}catch(e){}}
+  save();dM.close();render();toast(nova?'Resultado salvo e ação '+cod(nova)+' lançada no plano.':'Resultado salvo.');if(nova)setTimeout(()=>locate(nova.id),80);
+};
+
+// Exportar, imprimir, backup, WhatsApp
+function download(n,c,t){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:t}));a.download=n;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);}
+const q=x=>'"'+String(x==null?'':x).replace(/"/g,'""')+'"';
+$('#csv').onclick=()=>{
+  let c='﻿'+q('PLANO DE AÇÃO 5W2H')+'\r\n'+['Código','O quê (What)','Tema','Por quê (Why)','Onde (Where)','Início ou execução','Prazo final','Quem (Who)','Contato','Como (How)','Quanto: valor R$ (How much)','Quanto: observação','Situação','Atrasada','Atualizações'].map(q).join(';')+'\r\n';
+  db.acoes.slice().sort((x,y)=>x.n-y.n).forEach(a=>c+=[cod(a),a.titulo,TEMAS[a.tema].n,a.obj,a.onde,fmtFull(a.data),fmtFull(a.prazo),a.resp,a.contato,a.como,hasCost(a)?fmtMoney(a.custo):'',a.quanto,STATUS[a.status],isLate(a)?'Sim':'',(a.updates||[]).map(u=>fmtFull(u.data)+' '+u.nome+': '+u.texto).join(' | ')].map(q).join(';')+'\r\n');
+  c+='\r\n'+q('REUNIÕES DE RESULTADO')+'\r\n'+['Mês','Reunião','QCA realizado','QCA plano','QIA realizado','QIA plano','Fato','Causa','Ação','Responsável da ação','Prazo da ação','Observações','Registrado por'].map(q).join(';')+'\r\n';
+  MEET.forEach(x=>{const r=db.resultados[x.ref]||{},p=PLANO[x.ref];c+=[x.label+'/2027',fmtFull(x.de),r.qca,p[0],r.qia,p[1],r.fato,r.causa,r.acao,r.aresp,fmtFull(r.aprazo),r.obs,r.por].map(q).join(';')+'\r\n';});
+  download('plano-5w2h-2027-campo-grande.csv',c,'text/csv;charset=utf-8');toast('Planilha exportada.');
+};
+$('#backup').onclick=()=>{download('backup-agenda-2027-'+today+'.json',JSON.stringify(db,null,1),'application/json');toast('Backup salvo.');};
+$('#restore').onclick=()=>$('#file').click();
+$('#file').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{
+  let d;try{d=JSON.parse(r.result);if(!d||!Array.isArray(d.acoes))throw 0;}catch(err){toast('Arquivo inválido. Use um backup salvo por esta agenda.');return;}
+  let novas=0,atual=0;
+  d.acoes.forEach(x=>{const a=db.acoes.find(y=>y.id===x.id);
+    if(!a){if(x.quanto==null)x.quanto='A definir';db.acoes.push(x);novas++;return;}
+    const keys=new Set((a.updates||[]).map(u=>u.nome+'|'+u.data+'|'+u.texto));
+    (x.updates||[]).forEach(u=>{const k=u.nome+'|'+u.data+'|'+u.texto;if(!keys.has(k)){(a.updates=a.updates||[]).push(u);keys.add(k);}});
+    if((x.ts||0)>(a.ts||0)){['titulo','tema','resp','contato','data','prazo','obj','onde','como','custo','quanto','status','ts'].forEach(k=>{if(x[k]!==undefined)a[k]=x[k];});atual++;}
+    (a.updates||[]).sort((p,q)=>p.data<q.data?-1:1);});
+  Object.keys(d.resultados||{}).forEach(k=>{const x=d.resultados[k],y=db.resultados[k];if(!y||(x.ts||0)>(y.ts||0))db.resultados[k]=x;});
+  normalize();save();render();toast('Backup juntado: '+novas+' ações novas, '+atual+' atualizadas.');};r.readAsText(f);e.target.value='';};
+$('#copy').onclick=async()=>{
+  const a=db.acoes,late=a.filter(isLate),nr=a.filter(noResp),nod=a.filter(x=>!dateOf(x)&&x.status!=='ok');
+  const next=a.filter(in30).sort((x,y)=>keyDate(x)<keyDate(y)?-1:1);
+  const line=x=>'- '+cod(x)+' '+x.titulo+' | '+(x.prazo?'prazo '+fmtFull(x.prazo):'início '+fmtFull(x.data))+(x.resp?' | '+x.resp:'');
+  let t='*Agenda de ações 2027 · Campo Grande*\n';
+  const filled=MEET.filter(x=>db.resultados[x.ref]&&db.resultados[x.ref].qia!==undefined&&db.resultados[x.ref].qia!=='');
+  if(filled.length){const x=filled[filled.length-1],r=db.resultados[x.ref];t+='\n*Resultado de '+x.label.toLowerCase()+'*\nQCA: '+nf(r.qca)+' (plano '+nf(PLANO[x.ref][0])+')\nQIA: '+nf(r.qia)+' (plano '+nf(PLANO[x.ref][1])+')\n';}
+  t+='\n*Atrasadas ('+late.length+')*\n'+(late.length?late.map(line).join('\n'):'Nenhuma');
+  t+='\n\n*Vencem nos próximos 30 dias ('+next.length+')*\n'+(next.length?next.map(line).join('\n'):'Nenhuma');
+  t+='\n\n*Sem data definida ('+nod.length+')*\n'+(nod.length?nod.map(x=>'- '+cod(x)+' '+x.titulo).join('\n'):'Nenhuma');
+  t+='\n\n*Sem responsável ('+nr.length+')*\n'+(nr.length?nr.map(x=>'- '+cod(x)+' '+x.titulo).join('\n'):'Nenhuma');
+  try{await navigator.clipboard.writeText(t);toast('Resumo copiado. Cole no WhatsApp.');}
+  catch(e){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('Resumo copiado. Cole no WhatsApp.');}catch(_){toast('Não foi possível copiar.');}ta.remove();}
+};
+$('#add').onclick=()=>openA(null);
+
+render();
+})();
+</script>
+</body>
+</html>
